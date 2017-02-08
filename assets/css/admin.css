@@ -1,0 +1,16 @@
+@import url(http://fonts.googleapis.com/css?family=Roboto);
+
+html, body{ height: 100%; padding: 10px 20px; }
+
+
+.alert {
+	position: absolute;
+	top: 10px;
+	left: 25%;
+	width: 50%;
+	z-index: 10;
+}
+
+.tab-content .table>tbody>tr>th, 
+.tab-content .table>tbody>tr>td { vertical-align: middle; }
+.tab-content .table>thead>tr>th { text-align: center; }

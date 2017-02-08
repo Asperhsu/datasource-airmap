@@ -1,0 +1,121 @@
+[
+	{
+		"Channel_id" : 83508,
+		"SiteGroup" : "miaoski",
+		"Maker" : "Kiang",
+		"name": "kiang-pm25",
+		"Option": {
+			"field2": "Temperature",
+			"field3": "Humidity",
+			"field1": "Dust2_5"
+		},
+		"active": false
+	}, 
+	{
+		"Channel_id" : 88846,
+		"SiteGroup" : "miaoski",
+		"Maker" : "miaoski",
+		"name": "miaoski-pm25",
+		"Option": {
+			"field2": "Temperature",
+			"field3": "Humidity",
+			"field1": "Dust2_5"
+		},
+		"active": false
+	}, 
+	{
+		"Channel_id" : 106666,
+		"SiteGroup" : "CCU NEAT",
+		"Maker" : "林俊翰",
+		"name": "CCU NEAT",
+		"Option": {
+			"field1": "Temperature",
+			"field2": "Humidity",
+			"field3": "Dust2_5"
+		},
+		"active": true
+	}, 
+	{
+		"Channel_id" : 110747,
+		"SiteGroup" : "CCU 100",
+		"Maker" : "李皇辰",
+		"name": "CCU 100",
+		"Option": {
+			"field1": "Temperature",
+			"field2": "Humidity",
+			"field3": "Dust2_5"
+		},
+		"active": false
+	}, 
+	{
+		"Channel_id" : 116320,
+		"SiteGroup" : "ES-AIR",
+		"Maker" : "Ethan",
+		"name": "ES-AIR",
+		"Option": {
+			"field5": "Temperature",
+			"field4": "Humidity",
+			"field1": "Dust2_5"
+		},
+		"active": false
+	}, 
+	{
+		"Channel_id" : 101099,
+		"SiteGroup" : "ES-AIR",
+		"Maker" : "CCU_ME",
+		"name": "CCU_Structure_202",
+		"Option": {
+			"field6": "Temperature",
+			"field5": "Humidity",
+			"field1": "Dust2_5"
+		},
+		"active": true
+	}, 
+	{
+		"Channel_id" : 83205,
+		"SiteGroup" : "KS-001",
+		"Maker" : "D.T.Shaw",
+		"name": "Air Monitor",
+		"Option": {
+			"field4": "Temperature",
+			"field5": "Humidity",
+			"field7": "Dust2_5"
+		},
+		"active": true
+	}, 
+	{
+		"Channel_id" : 203701,
+		"SiteGroup" : "IOTF4",
+		"Maker" : "陳弘歷",
+		"name": "IOTF4",
+		"Option": {
+			"field2": "Temperature",
+			"field3": "Humidity",
+			"field1": "Dust2_5"
+		},
+		"active": false
+	}, 
+	{
+		"Channel_id" : 206063,
+		"SiteGroup" : "Home Sense",
+		"Maker" : "廖晨凱",
+		"name": "Home Sense",
+		"Option": {
+			"field1": "Temperature",
+			"field2": "Humidity",
+			"field4": "Dust2_5"
+		},
+		"active": true
+	},
+	{
+		"Channel_id" : 213273,
+		"SiteGroup" : "Dust sensor",
+		"Maker" : "bbn",
+		"name": "Dust sensor",
+		"Option": {
+			"field1": "Dust2_5",
+			"field2": "Dust10"
+		},
+		"active": false
+	}
+]

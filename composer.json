@@ -1,0 +1,20 @@
+{
+    "name": "aspertw/datasource-airmap",
+    "type": "project",
+    "authors": [
+        {
+            "name": "Asper Hsu",
+            "email": "asperwon@gmail.com"
+        }
+    ],
+    "require": {
+        "vlucas/phpdotenv": "^2.4",
+        "monolog/monolog": "^1.22"
+    },
+    "autoload": {
+    	"files": ["admin-helper.php"],
+        "psr-4": {
+        	"Asper\\": "asper/"
+        }
+    }
+}

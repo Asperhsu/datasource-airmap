@@ -1,0 +1,48 @@
+application: datasource-airmap
+version: 1
+runtime: php55
+api_version: 1
+threadsafe: yes
+
+handlers:
+
+#image
+- url: /image/(.*\.(bmp|gif|ico|jpeg|jpg|png))
+  static_files: assets/image/\1
+  upload: assets/image/(.*\.(bmp|gif|ico|jpeg|jpg|png))
+
+#css
+- url: /css/(.*\.css)
+  static_files: assets/css/\1
+  upload: assets/css/(.*\.css)
+  mime_type: text/css
+
+#js
+- url: /js/(.*\.js)
+  static_files: assets/js/\1
+  upload: assets/js/(.*\.js)
+  mime_type: application/javascript
+
+
+- url: /cron
+  script: /cron.php
+
+- url: /(.+)\.json
+  script: /public/json.php
+
+- url: /admin
+  script: /public/admin.php
+
+- url: /user
+  script: /public/user.php
+
+- url: /config
+  script: /public/config.php
+
+- url: /(.*)
+  script: /public/index.php
+
+skip_files:
+- ^(.*/)?.*/node_modules/.*$
+- ^(node_modules/.*)
+- ^(.git/.*)

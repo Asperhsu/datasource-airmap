@@ -1,0 +1,10 @@
+cron:
+- description: airmap
+  url: /cron?job=airmap
+  schedule: every 5 minutes
+  timezone: Asia/Taipei
+
+- description: g0v
+  url: /cron?job=g0v
+  schedule: every 5 minutes from 00:04 to 23:59
+  timezone: Asia/Taipei
