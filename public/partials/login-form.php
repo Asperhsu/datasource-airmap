@@ -4,8 +4,8 @@
 		<div class="loginmodal-container">
 			<h1>Login to Your Account</h1><br>
 			<form method="post" action="/user?op=login">
-				<input type="text" name="user" placeholder="Username">
-				<input type="password" name="pass" placeholder="Password">
+				<input type="text" name="user" placeholder="Username" required>
+				<input type="password" name="pass" placeholder="Password" required>
 				<input type="submit" name="login" class="login loginmodal-submit" value="Login">
 			</form>
 

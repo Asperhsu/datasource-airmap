@@ -13,30 +13,30 @@
 						<tr>
 							<th>Thingspeak Channel ID</th>
 							<td data-field="Channel_id">
-								<input type="text" name="Channel_id" class="form-control"/>
+								<input type="text" name="Channel_id" class="form-control" required/>
 							</td>
 						</tr>
 						<tr>
 							<th>Site Name</th>
 							<td data-field="name">
-								<input type="text" name="name" class="form-control"/>
+								<input type="text" name="name" class="form-control" required/>
 							</td>
 						</tr>
 						<tr>
 							<th>Maker</th>
 							<td data-field="Maker">
-								<input type="text" name="Maker" class="form-control"/>
+								<input type="text" name="Maker" class="form-control" required/>
 							</td>
 						</tr>
 						<tr>
 							<th>Active</th>
 							<td data-field="active">
 								<label class="radio-inline">
-									<input type="radio" name="active" value="true" />
+									<input type="radio" name="active" value="on" />
 									<span class="glyphicon glyphicon-ok"></span> Enable
 								</label>
 								<label class="radio-inline">
-									<input type="radio" name="active" value="false" />
+									<input type="radio" name="active" value="off" />
 									<span class="glyphicon glyphicon-remove"></span> Disable
 								</label>
 							</td>
@@ -48,19 +48,19 @@
 									<tr>
 										<th>Temperature</th>
 										<td data-field-mapping="Temperature">
-											<input type="text" name="option_Temperature" class="form-control"/>
+											<input type="text" name="option_Temperature" class="form-control" required/>
 										</td>
 									</tr>
 									<tr>
 										<th>Humidity</th>
 										<td data-field-mapping="Humidity">
-											<input type="text" name="option_Humidity" class="form-control"/>
+											<input type="text" name="option_Humidity" class="form-control" required/>
 										</td>
 									</tr>
 									<tr>
 										<th>PM 2.5</th>
 										<td data-field-mapping="Dust2_5">
-											<input type="text" name="option_Dust2_5" class="form-control"/>
+											<input type="text" name="option_Dust2_5" class="form-control" required/>
 										</td>
 									</tr>
 								</table>

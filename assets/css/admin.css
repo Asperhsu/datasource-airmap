@@ -1,7 +1,10 @@
 @import url(http://fonts.googleapis.com/css?family=Roboto);
 
-html, body{ height: 100%; padding: 10px 20px; }
+html, body{ height: 100%; padding: 10px; position: relative; }
 
+#navbar .right-side{ text-align: right; }
+
+#footer { border-top: 3px dotted #eee; font-size: 0.85em; text-align: center; padding: 5px; margin-bottom: 20px; }
 
 .alert {
 	position: absolute;

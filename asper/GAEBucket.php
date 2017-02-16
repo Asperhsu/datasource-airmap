@@ -4,30 +4,39 @@ namespace Asper;
 use Asper\LoggerFactory;
 
 class GAEBucket {
+	public static $bucketPath = null;
 	
 	public static function getLogger(){
 		return LoggerFactory::create()->getLogger('GAEBucket');
 	}
 
 	public static function getBucketPath(){
-		$path = getenv('GAE_BUCKET');
-		if( !strlen($path) ){
-			throw new Exception("GAE bucket path is not valid, please assign in .env");
+		if( !is_null(self::$bucketPath) ){
+			return self::$bucketPath;
 		}
 
-		if( strpos($path, "gs://") === false ){
-			$path = "gs://" . $path;
+		$bucketPath = getenv('GAE_BUCKET');
+
+		if( !strlen($bucketPath) ){
+			throw new \Exception("GAE bucket path is not valid, please assign in .env");
 		}
 
-		return $path;
+		if( strpos($bucketPath, "gs://") === false ){
+			$bucketPath = "gs://" . $bucketPath;
+		}
+
+		self::$bucketPath = $bucketPath;
+		return $bucketPath;
 	}
 
 	public static function save($path, $data){
 		$logger = self::getLogger();
 		$bucketPath = self::getBucketPath();
-
 		$fullPath = implode('/', [$bucketPath, $path]);
+
+		$time_start = microtime(true); 
 		$result = file_put_contents($fullPath, $data);
+		$logger->info('save file spend time in seconds: ' . (microtime(true) - $time_start));
 		
 		if($result === false){
 			$logger->warn("save ".$fullPath." error");
@@ -45,7 +54,9 @@ class GAEBucket {
 		$fullPath = implode('/', [$bucketPath, $path]);
 
 		if(file_exists($fullPath)){
-			$result = file_get_contents($fullPath);			
+			$time_start = microtime(true); 
+			$result = file_get_contents($fullPath);		
+			$logger->info('load file spend time in seconds: ' . (microtime(true) - $time_start));	
 		}else{
 			$logger->warn($fullPath . " not exist");
 			return false;

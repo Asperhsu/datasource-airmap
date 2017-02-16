@@ -7,4 +7,6 @@ putenv("APP_PATH=".__DIR__);
 $dotenv = new Dotenv\Dotenv(__DIR__);
 $dotenv->load();
 
-session_start();
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}

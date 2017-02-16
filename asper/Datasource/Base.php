@@ -3,61 +3,83 @@ namespace Asper\Datasource;
 
 use Asper\LoggerFactory;
 use Asper\GAEBucket;
+use Asper\DateHelper;
 
 abstract class Base {
-	protected $httpAdapter = null;
 	protected $logger;
+	protected $enableLogger = true;
 
-	protected $url = "";
+	protected $feedUrl = null;
 	protected $header = [];
 
-	protected $group = '';
+	protected $group = null;
+	protected $uniqueKey = null;
 	protected $fieldMapping = [];
 
 	public function __construct(){
-		$this->logger = LoggerFactory::create()->getLogger($this->group);
+		$this->logger = LoggerFactory::create()->getLogger('Datasource::'.$this->group);
 	}
 
 	abstract public function exec();
 
 	abstract protected function transform($row=[]);
 
-	protected function processFeeds($feeds){
+	protected function isValid($site){
+		return !(isset($site['Data']['Create_at']) &&
+			   Filter::timeGreaterThan($site['Data']['Create_at']));
+	}
+
+	protected function processFeeds($feeds, callable $filter=null){
 		$data = [];
+		$recordCountLog = [
+			'filter'	=> 0,
+			'valid' 	=> 0,
+			'expire' 	=> 0,
+			'total'		=> 0,
+		];
 
 		foreach($feeds as $index => $row){
 			$fields = $this->fieldTransform($row);
 			$transformedData = $this->transform($row);
+			$transformedData['RawData'] = $row;
+			
+			if($this->uniqueKey){ 
+				$transformedData['uniqueKey'] = $row[$this->uniqueKey];
+			}
+			
+			$site = array_merge_recursive($transformedData, ['Data' => $fields]);
 
-			if( isset($transformedData['Data']['Create_at']) &&
-			    Filter::timeGreaterThan($transformedData['Data']['Create_at']) ){
+			//filter, true for keep
+			if( !is_null($filter) && !$filter($site) ){
+				$recordCountLog['filter']++;
 				continue;
 			}
 
-			$data[] = array_merge_recursive($transformedData, ['Data' => $fields]);
+			$data[] = $site;
+
+			//log
+			$this->isValid($site) 
+				? ($recordCountLog['valid']++) 
+				: ($recordCountLog['expire']++);
+			$recordCountLog['total']++;
 		}
+
+		$msg = is_null($filter) ? 'processFeeds' : 'processFeeds with filter';
+		$this->enableLogger && $this->logger->info($msg, $recordCountLog);
 
 		return $data;
 	}
 
-	protected function convertTimeToTZ($string, $timezone=null){
-		$dateTime = new \DateTime($string);
-
-		if($timezone !== null){
-			$timezone = new DateTimeZone($timezone);
-			$dateTime->setTimezone($timezone);
+	protected function fieldTransform($row=[], $fieldMapping=null){
+		$data = [];
+		if( is_null($fieldMapping) ){
+			$fieldMapping = $this->fieldMapping;
 		}
 
-		return str_replace('+00:00', 'Z', gmdate('c', $dateTime->getTimestamp() ));
-	}
-
-	protected function fieldTransform($row=[]){
-		$data = [];
-
 		foreach($row as $fieldName => $fieldValue){
-			if( !isset($this->fieldMapping[$fieldName]) ){ continue; }
+			if( !isset($fieldMapping[$fieldName]) ){ continue; }
 
-			$newFieldName = $this->fieldMapping[$fieldName];
+			$newFieldName = $fieldMapping[$fieldName];
 			$data[$newFieldName] = $fieldValue;
 		}
 
@@ -65,7 +87,7 @@ abstract class Base {
 	}
 
 	protected function fetchRemote($url=null){
-		$url = $url ?: $this->url;
+		$url = $url ?: $this->feedUrl;
 
 		if( count($this->header) ){
 			$opts = [
@@ -78,7 +100,15 @@ abstract class Base {
 			return file_get_contents($url, false, $context);
 		}
 
-		return file_get_contents($url);
+		$contents = file_get_contents($url);
+		$statusCode = substr($http_response_header[0], 9, 3);
+
+		if($statusCode == 200){
+			return $contents;
+		}else{
+			$this->logger->warn("fetchRemote error.", compact('statusCode', 'url', 'http_response_header'));
+			return null;
+		}
 	}
 
 	protected function save($data=[]){
@@ -89,7 +119,7 @@ abstract class Base {
 		return GAEBucket::save($path, $data);
 	}
 
-	public function load(){
+	public function load($includeRaw=false, callable $isValidCB=null){
 		$path = $this->group . '.json';
 
 		$data = GAEBucket::load($path);
@@ -98,16 +128,56 @@ abstract class Base {
 		}else{
 			return [];
 		}
+		
+		$valid = [];
+		$expire = [];
 
-		$filterData = [];
 		foreach($data as $site){
-			if( isset($site['Data']['Create_at']) &&
-				Filter::timeGreaterThan($site['Data']['Create_at']) ){
-				continue;
-			}
-			$filterData[] = $site;
+			if( !$includeRaw && isset($site['RawData']) ){ unset($site['RawData']); }
+
+			$isValid = is_null($isValidCB) 
+						? $this->isValid($site) 
+						: call_user_func($isValidCB, $site);
+			$isValid ? ($valid[] = $site) : ($expire[] = $site);
 		}
 
-		return $filterData;
+		return compact('valid', 'expire');
+	}
+
+	public function queryLastest($id, $includeRAW=false){
+		$data = $this->load()['valid'];
+
+		foreach($data as $site){
+			if($site['uniqueKey'] != $id){ continue; }
+				
+			if(!$includeRAW){
+				unset($site['RawData']);
+			}
+
+			return $site;
+		}
+
+		return [];
+	}
+
+	public function queryHistory($id, $startTimestamp, $endTimestamp){
+		return [];	//optional implement
+	}
+
+	protected function convertFeedsToHistory($feeds){
+
+		$history = [];
+		foreach($feeds as $index => $feed){
+			foreach($feed['Data'] as $type => $value){
+				if( $type == 'Create_at' ){
+					$history['isotimes'][$index] = DateHelper::convertTimeToTZ($value);
+					continue;
+				}
+
+				$history[$type][$index] = intval($value);
+			}
+		}
+
+		return $history;
 	}
 }

@@ -104,7 +104,8 @@
 		}
 
 		if(action == "delete"){
-			var username = $(this).data('username');
+			var username = "" + $(this).data('username');
+			console.log(username.length);
 			if(!username.length){ return false; }
 
 			if( !confirm("Are you sure?") ){ return false; }

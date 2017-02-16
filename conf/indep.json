@@ -57,7 +57,7 @@
 			"field4": "Humidity",
 			"field1": "Dust2_5"
 		},
-		"active": false
+		"active": true
 	}, 
 	{
 		"Channel_id" : 101099,
@@ -81,7 +81,7 @@
 			"field5": "Humidity",
 			"field7": "Dust2_5"
 		},
-		"active": true
+		"active": false
 	}, 
 	{
 		"Channel_id" : 203701,
@@ -94,6 +94,19 @@
 			"field1": "Dust2_5"
 		},
 		"active": false
+	}, 
+	{
+		"Channel_id" : 160837,
+		"SiteGroup" : "龜山楓樹村",
+		"Maker" : "CasperYang",
+		"name": "龜山楓樹村",
+		"Option": {
+			"field1": "Temperature",
+			"field2": "Humidity",
+			"field5": "Dust2_5",
+			"field6": "Dust10"
+		},
+		"active": true
 	}, 
 	{
 		"Channel_id" : 206063,
@@ -117,5 +130,18 @@
 			"field2": "Dust10"
 		},
 		"active": false
+	},
+	{
+		"Channel_id" : 83205,
+		"SiteGroup" : "Air Monitor",
+		"Maker" : "shaw",
+		"name": "Air Monitor",
+		"Option": {
+			"field4": "Temperature",
+			"field5": "Humidity",
+			"field7": "Dust2_5",
+			"field8": "Dust10"
+		},
+		"active": true
 	}
 ]

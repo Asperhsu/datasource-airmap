@@ -14,22 +14,25 @@ class Airmap implements Handleable{
 	use ResponseTrait;
 
 	public function register(){
-		return ['airmap'];
+		return ['airmap', 'airmap-expire'];
 	}
 
 	public function trigger(Array $params=[]){
+		$index = $params['requestFile'] == "airmap-expire" ? 'expire' : 'valid';
+		$includeRAW = isset($params['raw']) ? (bool)$params['raw'] : false;
+
 		$data = [];
 
-		$data = array_merge($data, (new LASS())->load());
-		$data = array_merge($data, (new LASS4U())->load());
+		$data = array_merge($data, (new LASS())->load($includeRAW)[$index]);
+		$data = array_merge($data, (new LASS4U())->load($includeRAW)[$index]);
 
-		$data = array_merge($data, (new AsusAirbox())->load());
-		$data = array_merge($data, (new EdimaxAirbox())->load());
+		$data = array_merge($data, (new AsusAirbox())->load($includeRAW)[$index]);
+		$data = array_merge($data, (new EdimaxAirbox())->load($includeRAW)[$index]);
 		
-		$data = array_merge($data, (new EPAPlat())->load());
+		$data = array_merge($data, (new EPAPlat())->load($includeRAW)[$index]);
 
-		$data = array_merge($data, (new Independent())->load());
-		$data = array_merge($data, (new ProbeCube())->load());
+		$data = array_merge($data, (new Independent())->load($includeRAW)[$index]);
+		$data = array_merge($data, (new ProbeCube())->load($includeRAW)[$index]);
 
 		$callback = isset($params['callback']) ? $params['callback'] : null;
 		$this->setExpire( 5*60 );

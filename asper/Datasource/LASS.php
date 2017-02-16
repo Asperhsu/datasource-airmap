@@ -1,10 +1,16 @@
 <?php
 namespace Asper\Datasource;
 
+use Asper\DateHelper;
+
 class LASS extends Base {
-	protected $url = "https://data.lass-net.org/data/last-all-lass.json";
+	protected $feedUrl = "https://data.lass-net.org/data/last-all-lass.json";
+	protected $deviceHistoryUrl = "https://pm25.lass-net.org/data/history-date.php?device_id=%s&date=%s";	//date fotmat:YYYY-mm-dd
+	protected $deviceLastestUrl = "https://data.lass-net.org/data/last.php?device_id=%s";
 
 	protected $group = 'LASS';
+	protected $maker = 'LASS';
+	protected $uniqueKey = 'device_id';
 	protected $fieldMapping = [
 		's_d0' => 'Dust2_5',
 		's_d1' => 'PM10',
@@ -37,13 +43,65 @@ class LASS extends Base {
 				'lng' => $row['gps_lon'],
 			],
 			'SiteGroup' => $this->group,
-			'Marker'	=> $this->group,
-			'RawData'	=> $row,
+			'Maker'		=> $this->maker,
 			'Data'		=> [
-				'Create_at' => $this->convertTimeToTZ($row['timestamp'])
+				'Create_at' => DateHelper::convertTimeToTZ($row['timestamp'])
 			]
 		];
 
 		return $data;
 	}
+
+	public function queryLastest($id, $includeRAW=false){
+		$url = sprintf($this->deviceLastestUrl, $id);
+		$response = $this->fetchRemote($url);
+		if($response === null){ return []; }
+
+		$data = json_decode($response, true);
+		$dataFeeds = array_values($data['feeds'][0]);
+		$site = $this->processFeeds($dataFeeds);
+		
+		if( !count($site) ){ return []; }
+
+		$site = array_shift($site);
+		if(!$includeRAW){
+			unset($site['RawData']);
+		}
+		return $site;
+	}
+
+	public function queryHistory($id, $startTimestamp, $endTimestamp){
+		$startTZ 	= DateHelper::convertTimeToTZ($startTimestamp);
+		$endTZ 		= DateHelper::convertTimeToTZ($endTimestamp);
+		$queryDates = DateHelper::calcDateRange($startTZ, $endTZ);
+		$filter 	= function($site) use ($startTZ, $endTZ) {
+			if( !isset($site['Data']['Create_at']) ){ 
+				return true; 
+			}
+
+			return Filter::inTimeRange($site['Data']['Create_at'], $startTZ, $endTZ);
+		};
+
+		$feeds = [];
+		foreach($queryDates as $date){
+			$url = sprintf($this->deviceHistoryUrl, $id, $date);
+			$response = $this->fetchRemote($url);
+			if($response === null){ continue; }
+
+			$data = json_decode($response, true);
+			if( !isset($data['feeds'][0]) ){ continue; }
+
+			$dataFeeds = array_shift(array_values($data['feeds'][0]));
+			$data = $this->processFeeds($dataFeeds, $filter);
+			$feeds = array_merge($feeds, $data);
+		}
+
+		//sort by create_at asc
+		usort($feeds, function($a, $b){
+			return strtotime($a['Data']['Create_at']) < strtotime($b['Data']['Create_at']) ? -1: 1;
+		});
+
+		return $this->convertFeedsToHistory($feeds);
+	}
+
 }

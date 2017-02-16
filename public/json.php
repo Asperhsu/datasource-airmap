@@ -10,9 +10,19 @@ use Asper\JsonHandler\Datasource;
 use Asper\JsonHandler\IndependentConfig;
 use Asper\JsonHandler\ProbecubeConfig;
 
+//for CORS
+if( $_SERVER['REQUEST_METHOD'] == 'OPTIONS' ){
+	header("Access-Control-Allow-Origin: *");
+	header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
+	header('Content-Type: application/json');
+	exit;
+}
+
+
 $jsonType = call_user_func(function(){
 	$matches = [];
-	preg_match("/\/(.+?).json$/", $_SERVER['REQUEST_URI'], $matches);
+	$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+	preg_match("/\/(.+?).json$/", $path, $matches);
 	return isset($matches[1]) ? $matches[1] : null;
 });
 

@@ -71,7 +71,7 @@ function collectField($type){
 			'name' 			=> $_POST['name'],
 			'Maker' 		=> $_POST['Maker'],
 			'SiteGroup'		=> $_POST['Maker'],
-			'active' 		=> $_POST['active'] == "true",
+			'active' 		=> $_POST['active'] == "on",
 			'Option' 	=> [
 				$_POST['option_Temperature']	=> 'Temperature',
 				$_POST['option_Humidity'] 		=> 'Humidity',
@@ -84,7 +84,7 @@ function collectField($type){
 		return [
 			'Channel_id' 	=> $_POST['Channel_id'],
 			'maker' 		=> $_POST['maker'],
-			'active' 		=> $_POST['active'] == "true",
+			'active' 		=> $_POST['active'] == "on",
 		];
 	}
 

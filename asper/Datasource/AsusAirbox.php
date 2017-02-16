@@ -1,14 +1,20 @@
 <?php
 namespace Asper\Datasource;
 
+use Asper\DateHelper;
+
 class AsusAirbox extends Base {
-	protected $baseUrl = "http://airbox.asuscloud.com/airbox/";
+	protected $baseUrl = "https://airbox.asuscloud.com/airbox/";
 	protected $feedUrl = "messages/";
+	protected $deviceHistoryUrl = "device/%s/%s/%s";	//device/:id/:startTimestamp/:endTimeStamp
+
 	protected $header = [
 		"Prefix: 781463DA"
 	];
 
 	protected $group = 'Airbox_Asus';
+	protected $maker = 'Asus';
+	protected $uniqueKey = 'id';
 	protected $fieldMapping = [
 		'pm25' => 'Dust2_5',
 		'humidity' => 'Humidity',
@@ -35,13 +41,43 @@ class AsusAirbox extends Base {
 				'lng' => $row['lng'],
 			],
 			'SiteGroup' => $this->group,
-			'Marker'	=> $this->group,
-			'RawData'	=> $row,
+			'Maker'		=> $this->group,
 			'Data'		=> [
-				'Create_at' => $this->convertTimeToTZ($row['time'])
+				'Create_at' => DateHelper::convertTimeToTZ($row['time'])
 			]
 		];
 
 		return $data;
+	}
+
+	public function queryHistory($id, $startTimestamp, $endTimestamp){
+		$startMs 	= strtotime(DateHelper::convertTimeToTZ($startTimestamp)) * 1000;
+		$endMs		= strtotime(DateHelper::convertTimeToTZ($endTimestamp)) * 1000;
+		$url 		= sprintf($this->baseUrl.$this->deviceHistoryUrl, $id, $startMs, $endMs);
+
+		$response = $this->fetchRemote($url);
+		if($response === null){ return []; }
+
+		$feeds = [];
+		$data = json_decode($response, true);
+
+		foreach($data as $row){
+			$site = [
+				'SiteName' 	=> '',	//doesnt no matter
+				'LatLng'	=> '',	//doesnt no matter
+				'SiteGroup' => $this->group,
+				'Maker'		=> $this->maker,
+				'Data'		=> [
+					'Temperature' 	=> $row['s_t0'],
+					'Humidity' 		=> $row['s_h0'],
+					'Dust2_5' 		=> $row['s_d0'],
+					'Create_at' 	=> DateHelper::convertTimeToTZ($row['time'])
+				]
+			];
+
+			$feeds[] = $site;
+		}
+
+		return $this->convertFeedsToHistory($feeds);
 	}
 }

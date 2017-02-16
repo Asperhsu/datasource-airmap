@@ -23,24 +23,40 @@ handlers:
   upload: assets/js/(.*\.js)
   mime_type: application/javascript
 
+- url: /log
+  script: /public/log.php
+  secure: always
 
 - url: /cron
   script: /cron.php
 
 - url: /(.+)\.json
   script: /public/json.php
+  secure: always
 
 - url: /admin
   script: /public/admin.php
+  secure: always
 
 - url: /user
   script: /public/user.php
+  secure: always
 
 - url: /config
   script: /public/config.php
+  secure: always
+
+- url: /query-history
+  script: /public/query-history.php
+  secure: always
+
+- url: /query-lastest
+  script: /public/query-lastest.php
+  secure: always
 
 - url: /(.*)
   script: /public/index.php
+  secure: always
 
 skip_files:
 - ^(.*/)?.*/node_modules/.*$

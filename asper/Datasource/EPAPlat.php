@@ -2,9 +2,10 @@
 namespace Asper\Datasource;
 
 class EPAPlat extends Base {
-	protected $url = "http://taqm.g0v.asper.tw/plat.json";
+	protected $feedUrl = "http://taqm.g0v.asper.tw/plat.json";
 
 	protected $group = 'EPA';
+	protected $uniqueKey = 'SiteID';
 	protected $fieldMapping = [
 		's_d0' => 'Dust2_5',
 		's_d1' => 'PM10',

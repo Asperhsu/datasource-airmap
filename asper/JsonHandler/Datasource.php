@@ -1,13 +1,7 @@
 <?php
 namespace Asper\JsonHandler;
 
-use Asper\Datasource\LASS;
-use Asper\Datasource\LASS4U;
-use Asper\Datasource\AsusAirbox;
-use Asper\Datasource\EdimaxAirbox;
-use Asper\Datasource\EPAPlat;
-use Asper\Datasource\Independent;
-use Asper\Datasource\ProbeCube;
+use Asper\Datasource\Factory;
 
 class Datasource implements Handleable{
 
@@ -15,26 +9,27 @@ class Datasource implements Handleable{
 
 	public function register(){
 		return [
-			'lass', 
-			'lass4u', 
-			'edimax-airbox', 
-			'asus-airbox', 
-			'epa', 
-			'independent',
-			'probecube',
+			'lass', 			'lass-expire', 
+			'lass-4u', 			'lass-4u-expire',
+			'lass-maps', 		'lass-maps-expire',
+			'edimax-airbox', 	'edimax-airbox-expire', 
+			'asus-airbox', 		'asus-airbox-expire', 
+			'epa', 				'epa-expire',
+			'independent',		'independent-expire',
+			'probecube',		'probecube-expire',
 		];
 	}
 
 	public function trigger(Array $params=[]){
-		$data =  [];
-		switch($params['requestFile']){
-			case 'lass': 			$data = (new LASS())->load(); break;
-			case 'lass4u': 			$data = (new LASS4U())->load(); break;
-			case 'asus-airbox': 	$data = (new AsusAirbox())->load(); break;
-			case 'edimax-airbox': 	$data = (new EdimaxAirbox())->load(); break;
-			case 'epa': 			$data = (new EPAPlat())->load(); break;
-			case 'independent': 	$data = (new Independent())->load(); break;
-			case 'probecube': 		$data = (new ProbeCube())->load(); break;
+		$dsName = str_replace("-expire", '', $params['requestFile']);
+		$index = strpos($params['requestFile'], "-expire") === false ? 'valid' : 'expire';
+		$includeRAW = isset($params['raw']) ? (bool)$params['raw'] : false;
+		
+		$Datasource = Factory::make($dsName);
+		
+		$data = [];
+		if( !is_null($Datasource) ){
+			$data = $Datasource->load($includeRAW)[$index];
 		}
 
 		$callback = isset($params['callback']) ? $params['callback'] : null;

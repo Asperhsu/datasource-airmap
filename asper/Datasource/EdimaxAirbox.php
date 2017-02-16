@@ -1,13 +1,17 @@
 <?php
 namespace Asper\Datasource;
 
+use Asper\DateHelper;
+
 class EdimaxAirbox extends Base {
 	protected $baseUrl = "https://airbox.edimaxcloud.com/";
 	protected $feedUrl = "devices";
-	protected $historyUrl = "query_history_raw";
+	protected $deviceHistoryUrl = "query_history_raw?token=%s&id=%s&start=%s&end=%s";	//date format: YYYY-mm-dd%20H:i:s
 	private $token = "";
 
 	protected $group = 'Airbox_Edimax';
+	protected $maker = 'Edimax';
+	protected $uniqueKey = 'id';
 	protected $fieldMapping = [
 		'pm25' 	=> 'Dust2_5',
 		't' 	=> 'Temperature',
@@ -49,40 +53,46 @@ class EdimaxAirbox extends Base {
 				'lng' => $row['lon'],
 			],
 			'SiteGroup' => $this->group,
-			'Marker'	=> $this->group,
-			'RawData'	=> $row,
+			'Maker'		=> $this->group,
 			'Data'		=> [
-				'Create_at' => $this->convertTimeToTZ($row['time'])
+				'Create_at' => DateHelper::convertTimeToTZ($row['time'])
 			]
 		];
 
 		return $data;
 	}
 
-	public function fetchDeviceHistory($id=null, $start=null, $end=null){
-		if( is_null($id) || is_null($start) || is_null($end) ){
-			return false;
-		}
-
-		$param = implode("&", [
-			'token='.$this->token,
-			'id='.$id,
-			'start='.date('Y-m-d H:i:s', strtotime($start)),
-			'end='.date('Y-m-d H:i:s', strtotime($end)),
-		]);
-
-		//do not use urlencode, only replace space to %20
-		$param = str_replace(' ', '%20', $param);
-
-		$url = implode("", [
-			$this->baseUrl . $this->historyUrl,
-			'?'.$param
-		]);
+	public function queryHistory($id, $startTimestamp, $endTimestamp){
+		$startTZ 	= DateHelper::convertTimeToTZ($startTimestamp);
+		$endTZ		= DateHelper::convertTimeToTZ($endTimestamp);
+		$startDate  = date('Y-m-d%20H:i:s', strtotime($startTZ));
+		$endDate  	= date('Y-m-d%20H:i:s', strtotime($endTZ));
+		
+		$url 		= sprintf($this->baseUrl.$this->deviceHistoryUrl, $this->token, $id, $startDate, $endDate);
 
 		$response = $this->fetchRemote($url);
-		if($response === null){ return false; }
-		
+		if($response === null){ return []; }
+
+		$feeds = [];
 		$data = json_decode($response, true);
-		return $data;
+
+		foreach($data['entries'] as $row){
+			$site = [
+				'SiteName' 	=> '',	//doesnt no matter
+				'LatLng'	=> '',	//doesnt no matter
+				'SiteGroup' => $this->group,
+				'Maker'		=> $this->maker,
+				'Data'		=> [
+					'Temperature' 	=> $row['s_t0'],
+					'Humidity' 		=> $row['s_h0'],
+					'Dust2_5' 		=> $row['s_d0'],
+					'Create_at' 	=> DateHelper::convertTimeToTZ($row['time'])
+				]
+			];
+
+			$feeds[] = $site;
+		}
+
+		return $this->convertFeedsToHistory($feeds);
 	}
 }

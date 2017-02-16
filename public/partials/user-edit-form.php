@@ -3,7 +3,7 @@
 		<div class="loginmodal-container">
 			<h1 class="modal-title"></h1><br>
 			<form method="post" action="">
-				<input type="text" class="form-control" name="user" placeholder="Username">
+				<input type="text" class="form-control" name="user" placeholder="Username" required>
 				<input type="password" class="form-control" name="pass" placeholder="Password">
 				
 				<label class="radio-inline" title="user can only view config">
