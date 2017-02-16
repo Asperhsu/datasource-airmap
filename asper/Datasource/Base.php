@@ -153,15 +153,19 @@ abstract class Base {
 		return compact('valid', 'expire');
 	}
 
-	public function queryLastest($id, $includeRAW=false){
-		$data = $this->load()['valid'];
+	public function queryLastest($id, $includeRaw=false){
+		$data = $this->load($includeRaw);
+		$feeds = [];
 
-		foreach($data as $site){
+		if( count($data['valid']) ){
+			$feeds = $data['valid'];
+		}
+		if( count($data['expire']) ){
+			$feeds = $data['expire'];
+		}
+
+		foreach($feeds as $site){
 			if($site['uniqueKey'] != $id){ continue; }
-				
-			if(!$includeRAW){
-				unset($site['RawData']);
-			}
 
 			return $site;
 		}

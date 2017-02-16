@@ -12,7 +12,7 @@ class AsusAirbox extends Base {
 		"Prefix: 781463DA"
 	];
 
-	protected $group = 'Airbox_Asus';
+	protected $group = 'Asus-Airbox';
 	protected $maker = 'Asus';
 	protected $uniqueKey = 'id';
 	protected $fieldMapping = [

@@ -9,7 +9,7 @@ class EdimaxAirbox extends Base {
 	protected $deviceHistoryUrl = "query_history_raw?token=%s&id=%s&start=%s&end=%s";	//date format: YYYY-mm-dd%20H:i:s
 	private $token = "";
 
-	protected $group = 'Airbox_Edimax';
+	protected $group = 'Edimax-Airbox';
 	protected $maker = 'Edimax';
 	protected $uniqueKey = 'id';
 	protected $fieldMapping = [
