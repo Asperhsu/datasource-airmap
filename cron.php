@@ -30,6 +30,7 @@ switch($job){
 	case 'airmap':
 		(new LASS())->exec();
 		(new LASS4U())->exec();
+		(new LASSMAPS())->exec();
 		(new AsusAirbox())->exec();
 		(new EdimaxAirbox())->exec();
 		(new EPAPlat())->exec();

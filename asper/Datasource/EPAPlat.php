@@ -5,7 +5,7 @@ class EPAPlat extends Base {
 	protected $feedUrl = "http://taqm.g0v.asper.tw/plat.json";
 
 	protected $group = 'EPA';
-	protected $uniqueKey = 'SiteID';
+	protected $uniqueKey = 'RawData.SiteID';
 	protected $fieldMapping = [
 		's_d0' => 'Dust2_5',
 		's_d1' => 'PM10',

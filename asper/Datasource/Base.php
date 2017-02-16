@@ -43,8 +43,17 @@ abstract class Base {
 			$transformedData = $this->transform($row);
 			$transformedData['RawData'] = $row;
 			
-			if($this->uniqueKey){ 
-				$transformedData['uniqueKey'] = $row[$this->uniqueKey];
+			if($this->uniqueKey){
+				$indexes = explode('.', $this->uniqueKey);
+				
+				$value = $row;
+				foreach($indexes as $index){
+					if( isset($value[$index]) ){
+						$value = $value[$index];
+					}
+				}
+
+				$transformedData['uniqueKey'] = $value;
 			}
 			
 			$site = array_merge_recursive($transformedData, ['Data' => $fields]);

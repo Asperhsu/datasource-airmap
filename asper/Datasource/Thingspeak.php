@@ -42,7 +42,7 @@ class Thingspeak extends Base {
 			$feeds[] = $feed;
 
 			//record last update for config
-			$lastUpdate[$feed[$this->uniqueKey]] = $feed['Data']['Create_at'];
+			$lastUpdate[$feed['uniqueKey']] = $feed['Data']['Create_at'];
 		}
 
 		$this->logger->info('processFeeds', $recordCountLog);
@@ -115,7 +115,7 @@ class Thingspeak extends Base {
 			$this->fieldMapping = $site['Option'];
 		}
 
-		//transform tosite feed format
+		//transform to site feed format
 		$feeds = $this->processFeeds($data['feeds']);
 
 		return $this->convertFeedsToHistory($feeds);
