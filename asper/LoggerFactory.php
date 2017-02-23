@@ -3,6 +3,7 @@ namespace Asper;
 
 use Monolog\Logger;
 use Monolog\Handler\SyslogHandler;
+use Monolog\Formatter\JsonFormatter;
 
 class LoggerFactory {
 	private $logger;
@@ -12,7 +13,12 @@ class LoggerFactory {
 	 */
 	private function __construct(){
 		$logger = new Logger('application');
-		$logger->pushHandler(new SyslogHandler('datasourceLog'));
+
+		$formatter = new JsonFormatter();
+		$handler = new SyslogHandler('datasourceLog');
+		$handler->setFormatter($formatter);
+		
+		$logger->pushHandler($handler);
 
 		$this->logger = $logger;
 	}
@@ -21,7 +27,7 @@ class LoggerFactory {
 		static $instance = null;
 
 		if( $instance === null ){
-			$instance = new LoggerFactory();
+			$instance = new LoggerFactory($handler);
 		}
 
 		return $instance;
@@ -32,5 +38,4 @@ class LoggerFactory {
 				$this->logger : 
 				$this->logger->withName($name);
 	}
-
 }

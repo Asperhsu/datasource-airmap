@@ -130,16 +130,15 @@ abstract class Base {
 
 	public function load($includeRaw=false, callable $isValidCB=null){
 		$path = $this->group . '.json';
+		$valid = [];
+		$expire = [];
 
 		$data = GAEBucket::load($path);
 		if($data){ 
 			$data = json_decode($data, true); 
 		}else{
-			return [];
+			return compact('valid', 'expire');
 		}
-		
-		$valid = [];
-		$expire = [];
 
 		foreach($data as $site){
 			if( !$includeRaw && isset($site['RawData']) ){ unset($site['RawData']); }

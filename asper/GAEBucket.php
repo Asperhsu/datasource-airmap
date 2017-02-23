@@ -29,10 +29,15 @@ class GAEBucket {
 		return $bucketPath;
 	}
 
-	public static function save($path, $data){
-		$logger = self::getLogger();
+	public static function getRealFilePath($path){
 		$bucketPath = self::getBucketPath();
 		$fullPath = implode('/', [$bucketPath, $path]);
+		return $fullPath;
+	}
+
+	public static function save($path, $data){
+		$logger = self::getLogger();
+		$fullPath = self::getRealFilePath($path);
 
 		$time_start = microtime(true); 
 		$result = file_put_contents($fullPath, $data);
@@ -49,9 +54,7 @@ class GAEBucket {
 
 	public static function load($path){
 		$logger = self::getLogger();
-		$bucketPath = self::getBucketPath();
-
-		$fullPath = implode('/', [$bucketPath, $path]);
+		$fullPath = self::getRealFilePath($path);
 
 		if(file_exists($fullPath)){
 			$time_start = microtime(true); 
@@ -69,6 +72,22 @@ class GAEBucket {
 			$logger->info("load ".$fullPath." success");
 			return $result;
 		}
+	}
+
+	public static function exist($path){
+		$logger = self::getLogger();
+		$fullPath = self::getRealFilePath($path);
+		return file_exists($fullPath) ? $fullPath : false;
+	}
+
+	public static function createWhenNotExist($path){
+		$fullPath = self::exist($path);
+
+		if($fullPath === false){
+			self::save($path, '');
+			return self::getRealFilePath($path);
+		}
+		return $fullPath;
 	}
 
 }
