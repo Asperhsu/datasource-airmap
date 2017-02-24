@@ -27,7 +27,7 @@ class LoggerFactory {
 		static $instance = null;
 
 		if( $instance === null ){
-			$instance = new LoggerFactory($handler);
+			$instance = new LoggerFactory();
 		}
 
 		return $instance;

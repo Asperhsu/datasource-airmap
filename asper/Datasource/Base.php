@@ -154,18 +154,10 @@ abstract class Base {
 
 	public function queryLastest($id, $includeRaw=false){
 		$data = $this->load($includeRaw);
-		$feeds = [];
-
-		if( count($data['valid']) ){
-			$feeds = $data['valid'];
-		}
-		if( count($data['expire']) ){
-			$feeds = $data['expire'];
-		}
+		$feeds = array_merge($data['valid'], $data['expire']);
 
 		foreach($feeds as $site){
 			if($site['uniqueKey'] != $id){ continue; }
-
 			return $site;
 		}
 
