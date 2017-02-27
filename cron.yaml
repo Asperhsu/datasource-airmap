@@ -1,10 +1,15 @@
 cron:
 - description: airmap
   url: /cron?job=airmap
-  schedule: every 5 minutes
+  schedule: every 5 minutes from 00:05 to 23:59
   timezone: Asia/Taipei
 
 - description: g0v
   url: /cron?job=g0v
-  schedule: every 5 minutes from 00:04 to 23:59
+  schedule: every 5 minutes from 00:03 to 23:59
+  timezone: Asia/Taipei
+
+- description: data analysis
+  url: /cron?job=data-analysis
+  schedule: every 5 minutes from 00:01 to 23:59
   timezone: Asia/Taipei

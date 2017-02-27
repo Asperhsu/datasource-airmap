@@ -36,13 +36,16 @@ abstract class Base {
 			'valid' 	=> 0,
 			'expire' 	=> 0,
 			'total'		=> 0,
-		];
+		];		
+		$LassRanking = new LassRanking();
+		$LassDeviceStatus = new LassDeviceStatus();
 
 		foreach($feeds as $index => $row){
 			$fields = $this->fieldTransform($row);
 			$transformedData = $this->transform($row);
 			$transformedData['RawData'] = $row;
 			
+			//find uniquekey in rawData, fill into site
 			if($this->uniqueKey){
 				$indexes = explode('.', $this->uniqueKey);
 				
@@ -54,6 +57,8 @@ abstract class Base {
 				}
 
 				$transformedData['uniqueKey'] = $value;
+				$transformedData['reliableRanking'] = $LassRanking->getRank($value);
+				$transformedData['supposeStatus'] = $LassDeviceStatus->getStatus($value);
 			}
 			
 			$site = array_merge_recursive($transformedData, ['Data' => $fields]);

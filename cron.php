@@ -11,6 +11,9 @@ use Asper\Datasource\EPAPlat;
 use Asper\Datasource\Independent;
 use Asper\Datasource\ProbeCube;
 
+use Asper\Datasource\LassRanking;
+use Asper\Datasource\LassDeviceStatus;
+
 $job = strtolower($_GET['job']);
 switch($job){
 	case 'lass':
@@ -38,5 +41,9 @@ switch($job){
 	case 'g0v':
 		(new Independent())->exec();
 		(new ProbeCube())->exec();
+		break;
+	case 'data-analysis':
+		(new LassRanking())->exec();
+		(new LassDeviceStatus())->exec();
 		break;
 }

@@ -18,6 +18,8 @@ if( $_SERVER['REQUEST_METHOD'] == 'OPTIONS' ){
 	exit;
 }
 
+syslog(LOG_INFO, print_r($_SERVER, true));
+
 
 $jsonType = call_user_func(function(){
 	$matches = [];

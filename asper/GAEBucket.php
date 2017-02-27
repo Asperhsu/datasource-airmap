@@ -15,10 +15,10 @@ class GAEBucket {
 			return self::$bucketPath;
 		}
 
-		$bucketPath = getenv('GAE_BUCKET');
+		$bucketPath = getenv('GAE_BUCKET', true) ?: getenv('GAE_BUCKET');
 
 		if( !strlen($bucketPath) ){
-			throw new \Exception("GAE bucket path is not valid, please assign in .env");
+			throw new \Exception("GAE bucket path is not valid, please assign in env.php. " . var_export($this->token, true) );
 		}
 
 		if( strpos($bucketPath, "gs://") === false ){
