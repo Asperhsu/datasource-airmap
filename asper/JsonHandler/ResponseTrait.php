@@ -26,7 +26,7 @@ trait ResponseTrait{
 		$this->response($data, $callback);		
 	}
 
-	public function response($data, $callback=null){		
+	public function response($data, $callback=null){
 		if( $callback ){			
 			$this->jsonpResponse($callback, $data);
 		}else{
@@ -40,7 +40,7 @@ trait ResponseTrait{
 		$this->jsonResponse($response);
 	}
 
-	public function jsonResponse($response){		
+	public function jsonResponse($response){
 		if( is_array($response) ){
 			$response = json_encode($response);
 		}
@@ -49,6 +49,5 @@ trait ResponseTrait{
 		header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
 		header('Content-Type: application/json');
 		echo $response;
-		exit;
 	}
 }

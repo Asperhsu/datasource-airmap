@@ -1,5 +1,6 @@
 <?php
 require("bootstrap.php");
+if( !isAuthorized() ){ show_550(); }
 
 use Asper\JsonHandler\ServiceProvider;
 use Asper\JsonHandler\Fallback;
@@ -10,6 +11,7 @@ use Asper\JsonHandler\Datasource;
 use Asper\JsonHandler\IndependentConfig;
 use Asper\JsonHandler\ProbecubeConfig;
 
+
 //for CORS
 if( $_SERVER['REQUEST_METHOD'] == 'OPTIONS' ){
 	header("Access-Control-Allow-Origin: *");
@@ -17,9 +19,6 @@ if( $_SERVER['REQUEST_METHOD'] == 'OPTIONS' ){
 	header('Content-Type: application/json');
 	exit;
 }
-
-syslog(LOG_INFO, print_r($_SERVER, true));
-
 
 $jsonType = call_user_func(function(){
 	$matches = [];
@@ -41,7 +40,9 @@ $handlers = [
 ];
 $serviceProvider = new ServiceProvider();
 $serviceProvider->register($handlers);
-$serviceProvider->trigger($jsonType, $params);
+$result = $serviceProvider->trigger($jsonType, $params);
 
-//fallback
-(new Fallback)->res($params);
+if(!$result){
+	//fallback
+	(new Fallback)->res($params);
+}

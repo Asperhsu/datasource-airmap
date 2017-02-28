@@ -1,5 +1,6 @@
 <?php
 require("bootstrap.php");
+if( !isAuthorized() ){ show_550(); }
 
 use Asper\Datasource\Factory;
 use Asper\JsonHandler\ResponseTrait;

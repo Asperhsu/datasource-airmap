@@ -15,7 +15,7 @@ class GAEBucket {
 			return self::$bucketPath;
 		}
 
-		$bucketPath = getenv('GAE_BUCKET', true) ?: getenv('GAE_BUCKET');
+		$bucketPath = env('GAE_BUCKET');
 
 		if( !strlen($bucketPath) ){
 			throw new \Exception("GAE bucket path is not valid, please assign in env.php. " . var_export($this->token, true) );
@@ -41,13 +41,15 @@ class GAEBucket {
 
 		$time_start = microtime(true); 
 		$result = file_put_contents($fullPath, $data);
-		$logger->info('save file spend time in seconds: ' . (microtime(true) - $time_start));
 		
 		if($result === false){
 			$logger->warn("save ".$fullPath." error");
 			return false;
 		}else{
-			$logger->info("save ".$fullPath." success, total bytes: ".$result);
+			$logger->info("save ".$fullPath." success", [
+				'bytes' => $result,
+				'spendTimeSec' => (microtime(true) - $time_start)
+			]);
 			return true;
 		}
 	}
@@ -58,8 +60,7 @@ class GAEBucket {
 
 		if(file_exists($fullPath)){
 			$time_start = microtime(true); 
-			$result = file_get_contents($fullPath);		
-			$logger->info('load file spend time in seconds: ' . (microtime(true) - $time_start));	
+			$result = file_get_contents($fullPath);	
 		}else{
 			$logger->warn($fullPath . " not exist");
 			return false;
@@ -69,7 +70,9 @@ class GAEBucket {
 			$logger->warn("load ".$fullPath." error");
 			return false;
 		}else{
-			$logger->info("load ".$fullPath." success");
+			$logger->info("load ".$fullPath." success", [
+				'spendTimeSec' => (microtime(true) - $time_start)
+			]);
 			return $result;
 		}
 	}

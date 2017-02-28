@@ -92,6 +92,24 @@ $datasources = [
 					</table>
 					
 					<div class="panel-body">
+						<span class="label label-primary">Required Parameter</span>
+						<table class="table table-striped">
+							<thead>
+								<tr>
+									<th>Name</th>
+									<th>Value Type</th>
+									<th>Description</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>token</td>
+									<td>string</td>
+									<td>access token.</td>
+								</tr>
+							</tbody>
+						</table>
+
 						<span class="label label-primary">Optional Parameter</span>
 						<table class="table table-striped">
 							<thead>
@@ -144,6 +162,11 @@ $datasources = [
 							</thead>
 							<tbody>
 								<tr>
+									<td>token</td>
+									<td>string</td>
+									<td>access token.</td>
+								</tr>
+								<tr>
 									<td>group</td>
 									<td>string</td>
 									<td>site group (ex: lass, lass-4u, ...etc).</td>
@@ -193,6 +216,11 @@ $datasources = [
 								</tr>
 							</thead>
 							<tbody>
+								<tr>
+									<td>token</td>
+									<td>string</td>
+									<td>access token.</td>
+								</tr>
 								<tr>
 									<td>group</td>
 									<td>string</td>

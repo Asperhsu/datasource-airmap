@@ -21,7 +21,7 @@ class EdimaxAirbox extends Base {
 	public function __construct(){
 		parent::__construct();
 
-		$this->token = getenv("EDIMAX_AIRBOX_TOKEN", true) ?: getenv("EDIMAX_AIRBOX_TOKEN");
+		$this->token = env("EDIMAX_AIRBOX_TOKEN");
 		if( !strlen($this->token) ){
 			$msg = "access token is not valid, please assign in env.php. " . var_export($this->token, true);
 			$this->logger->error($msg);

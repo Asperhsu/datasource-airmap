@@ -11,7 +11,7 @@
         "monolog/monolog": "^1.22"
     },
     "autoload": {
-    	"files": ["admin-helper.php"],
+    	"files": ["admin-helper.php", "api-common.php"],
         "psr-4": {
         	"Asper\\": "asper/"
         }
