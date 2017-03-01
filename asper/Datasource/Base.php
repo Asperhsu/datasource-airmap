@@ -43,7 +43,7 @@ abstract class Base {
 		foreach($feeds as $index => $row){
 			$fields = $this->fieldTransform($row);
 			$transformedData = $this->transform($row);
-			$transformedData['RawData'] = $row;
+			if( !$transformedData ){ continue; }
 			
 			//find uniquekey in rawData, fill into site
 			if($this->uniqueKey){
@@ -60,7 +60,8 @@ abstract class Base {
 				$transformedData['reliableRanking'] = $LassRanking->getRank($value);
 				$transformedData['supposeStatus'] = $LassDeviceStatus->getStatus($value);
 			}
-			
+
+			$transformedData['RawData'] = $row;
 			$site = array_merge_recursive($transformedData, ['Data' => $fields]);
 
 			//filter, true for keep

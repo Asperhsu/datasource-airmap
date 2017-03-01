@@ -46,6 +46,8 @@ class EdimaxAirbox extends Base {
 	}
 
 	protected function transform($row=[]){
+		if($row['type'] == "lass-airbox"){ return false; }
+
 		$data = [
 			'SiteName' 	=> $row['name'],
 			'LatLng'	=> [
