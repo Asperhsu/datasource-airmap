@@ -41,7 +41,7 @@ class AsusAirbox extends Base {
 				'lng' => $row['lng'],
 			],
 			'SiteGroup' => $this->group,
-			'Maker'		=> $this->group,
+			'Maker'		=> $this->maker,
 			'Data'		=> [
 				'Create_at' => DateHelper::convertTimeToTZ($row['time'])
 			]

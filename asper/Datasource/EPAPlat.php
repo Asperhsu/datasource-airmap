@@ -6,14 +6,6 @@ class EPAPlat extends Base {
 
 	protected $group = 'EPA';
 	protected $uniqueKey = 'RawData.SiteID';
-	protected $fieldMapping = [
-		's_d0' => 'Dust2_5',
-		's_d1' => 'PM10',
-		's_d2' => 'PM1',
-		's_h0' => 'Humidity',
-		's_h2' => 'Humidity',
-		's_t0' => 'Temperature',
-	];
 
 	public function exec(){
 		$response = $this->fetchRemote();

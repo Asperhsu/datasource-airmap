@@ -23,7 +23,11 @@ class Factory {
 			case 'lass-maps':  		return new LASSMAPS();
 			case 'asus-airbox':  	return new AsusAirbox();
 			case 'edimax-airbox':  	return new EdimaxAirbox();
-			case 'epa':  			return new EPAPlat();
+			case '特殊性工業區':
+			case '中央政府':
+			case '地方環保局':
+			case '大型事業':
+				return new EPAPlat();
 			case 'independent':  	return new Independent();
 			case 'probecube':  		return new ProbeCube();
 		}

@@ -53,7 +53,7 @@ class EdimaxAirbox extends Base {
 				'lng' => $row['lon'],
 			],
 			'SiteGroup' => $this->group,
-			'Maker'		=> $this->group,
+			'Maker'		=> $this->maker,
 			'Data'		=> [
 				'Create_at' => DateHelper::convertTimeToTZ($row['time'])
 			]

@@ -6,7 +6,7 @@ function show_550(){
 }
 
 function isAuthorized(){
-	$token = $_GET['token'];
+	$token = isset($_GET['token']) ? $_GET['token'] : '';
 	if( !strlen($token) ){ return false; }
 	$tokens = env('ACCEPT_TOKENS') ?: '';
 	$tokens = explode(",", $tokens);
