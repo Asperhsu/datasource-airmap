@@ -70,9 +70,9 @@ class GAEBucket {
 			$logger->warn("load ".$fullPath." error");
 			return false;
 		}else{
-			$logger->info("load ".$fullPath." success", [
-				'spendTimeSec' => (microtime(true) - $time_start)
-			]);
+			// $logger->info("load ".$fullPath." success", [
+			// 	'spendTimeSec' => (microtime(true) - $time_start)
+			// ]);
 			return $result;
 		}
 	}

@@ -8,7 +8,6 @@ $datasources = [
 	'LASS' 				=> 'lass',
 	'LASS 4U' 			=> 'lass-4u',
 	'LASS MAPS' 		=> 'lass-maps',
-	'Edimax Airbox' 	=> 'edimax-airbox',
 	'Asus Airbox' 		=> 'asus-airbox',
 	'EPA' 				=> 'epa',
 	'G0V Independent' 	=> 'independent',

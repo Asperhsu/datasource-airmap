@@ -1,6 +1,14 @@
 <?php
 require("bootstrap.php");
-if( !isAuthorized() ){ show_550(); }
+
+$jsonType = call_user_func(function(){
+	$matches = [];
+	$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+	preg_match("/\/(.+?).json$/", $path, $matches);
+	return isset($matches[1]) ? $matches[1] : null;
+});
+
+if( $jsonType == 'edimax-airbox' && !isAuthorized() ){ show_550(); }
 
 use Asper\JsonHandler\ServiceProvider;
 use Asper\JsonHandler\Fallback;
@@ -20,12 +28,7 @@ if( $_SERVER['REQUEST_METHOD'] == 'OPTIONS' ){
 	exit;
 }
 
-$jsonType = call_user_func(function(){
-	$matches = [];
-	$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-	preg_match("/\/(.+?).json$/", $path, $matches);
-	return isset($matches[1]) ? $matches[1] : null;
-});
+
 
 $params = array_merge($_GET, [
 	'requestFile' => $jsonType,

@@ -12,6 +12,11 @@ class EPAPlat extends Base {
 		if($response === null){ return false; }
 		
 		$data = json_decode($response, true);
+		if($data === null){
+			$this->logger->warn("json decode failed");
+			return false;
+		}
+
 		$data = $this->processFeeds($data);
 		$this->save($data);
 

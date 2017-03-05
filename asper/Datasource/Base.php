@@ -155,6 +155,8 @@ abstract class Base {
 			$isValid ? ($valid[] = $site) : ($expire[] = $site);
 		}
 
+		$this->logger->info("load sites count", ['valid' => count($valid), 'expire' => count($expire)] );
+
 		return compact('valid', 'expire');
 	}
 
