@@ -17,8 +17,8 @@ class User {
 
 		$config = GAEBucket::load($this->configPath);
 		if( !$config ){	//config not exist, use and copy default config
-			if(file_exists(getenv("APP_PATH") . $this->defaultConfigPath)){
-				$password = getenv('DEFAULT_ADMIN_PASSWORD');
+			if(file_exists(env("APP_PATH") . $this->defaultConfigPath)){
+				$password = env('DEFAULT_ADMIN_PASSWORD');
 				if( !strlen($password) ){
 					throw new Exception("default admin password is not valid, please assign in .env");
 				}

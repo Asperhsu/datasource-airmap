@@ -128,8 +128,8 @@ class Thingspeak extends Base {
 		$config = GAEBucket::load($this->configPath);
 
 		if( !$config ){	//config not exist, use and copy default config
-			if(file_exists(getenv("APP_PATH") . $this->defaultConfigPath)){
-				$config = file_get_contents(getenv("APP_PATH") . $this->defaultConfigPath);
+			if(file_exists(env("APP_PATH") . $this->defaultConfigPath)){
+				$config = file_get_contents(env("APP_PATH") . $this->defaultConfigPath);
 				GAEBucket::save($this->configPath, $config);
 			}else{
 				$msg = get_class($this) . " default config not exist.";

@@ -15,5 +15,5 @@ function isAuthorized(){
 }
 
 function env($index){
-	return @getenv($index, true) ?: getenv($index);
+	return defined($index) ? constant($index) : false;
 }

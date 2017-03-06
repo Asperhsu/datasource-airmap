@@ -46,10 +46,10 @@ class GAEBucket {
 			$logger->warn("save ".$fullPath." error");
 			return false;
 		}else{
-			$logger->info("save ".$fullPath." success", [
-				'bytes' => $result,
-				'spendTimeSec' => (microtime(true) - $time_start)
-			]);
+			// $logger->info("save ".$fullPath." success", [
+			// 	'bytes' => $result,
+			// 	'spendTimeSec' => (microtime(true) - $time_start)
+			// ]);
 			return true;
 		}
 	}
