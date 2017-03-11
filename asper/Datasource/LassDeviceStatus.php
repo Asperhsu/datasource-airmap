@@ -47,6 +47,11 @@ class LassDeviceStatus extends LassAnalysis {
 		];
 
 		$malfunctions = json_decode($response, true);
+		if($malfunctions === null){
+			$this->logger->info('response can not decode');
+			return false;
+		}
+
 		foreach($malfunctions['feeds'] as $feed){
 			$key = $feed['device_id'];
 
@@ -76,6 +81,11 @@ class LassDeviceStatus extends LassAnalysis {
 		$total = 0;
 
 		$pollutions = json_decode($response, true);
+		if($pollutions === null){
+			$this->logger->info('response can not decode');
+			return false;
+		}
+		
 		foreach($pollutions['feeds'] as $feed){
 			$key = $feed['device_id'];
 			$data[$key] = self::STATUS_SHORTTERM_POLLUTION;

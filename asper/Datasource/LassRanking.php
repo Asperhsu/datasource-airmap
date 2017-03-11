@@ -17,7 +17,12 @@ class LassRanking extends LassAnalysis {
 		];
 
 		$rankings = json_decode($response, true);
-		foreach($rankings as $ranking){
+		if($rankings === null){
+			$this->logger->info('response can not decode');
+			return false;
+		}
+
+		foreach($rankings['feeds'] as $ranking){
 			$key = $ranking['device_id'];
 			$ranking = self::ranking2Level($ranking['ranking']);
 
