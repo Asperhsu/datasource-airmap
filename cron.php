@@ -14,6 +14,8 @@ use Asper\Datasource\ProbeCube;
 use Asper\Datasource\LassRanking;
 use Asper\Datasource\LassDeviceStatus;
 
+use Asper\JsonHandler\Airmap as AirmapJson;
+
 $job = strtolower($_GET['job']);
 switch($job){
 	case 'lass':
@@ -37,6 +39,15 @@ switch($job){
 		(new AsusAirbox())->exec();
 		(new EdimaxAirbox())->exec();
 		(new EPAPlat())->exec();
+
+		// save to myjson.com
+		ob_start();
+		(new AirmapJson())->trigger(['requestFile' => 'airmap']);
+		$json = ob_get_contents();
+		ob_end_clean();
+
+		$myjsonID = env('MYJSON_AIRMAP_ID');
+		fetchMyJson("PUT", $myjsonID, $json);
 		break;
 	case 'g0v':
 		(new Independent())->exec();
