@@ -4,6 +4,7 @@ namespace Asper;
 use Monolog\Logger;
 use Monolog\Handler\SyslogHandler;
 use Monolog\Formatter\JsonFormatter;
+use Asper\Log\GoogleCloudDatastoreHandler;
 
 class LoggerFactory {
 	private $logger;
@@ -11,26 +12,35 @@ class LoggerFactory {
 	/**
 	 * Private ctor so nobody else can instance it
 	 */
-	private function __construct(){
+	private function __construct($type, $name){
 		$logger = new Logger('application');
-
 		$formatter = new JsonFormatter();
-		$handler = new SyslogHandler('datasourceLog');
+
+		switch($type){
+			default:
+			case 'syslog':
+				$handler = new SyslogHandler($name);
+				break;
+			case 'datastore':
+				$handler = new GoogleCloudDatastoreHandler($name);
+				break;
+		}
+
 		$handler->setFormatter($formatter);
-		
 		$logger->pushHandler($handler);
 
 		$this->logger = $logger;
 	}
 
-	public static function create(){
-		static $instance = null;
+	public static function create($type='syslog', $name='datasourceLog'){
+		static $instances = [];
 
-		if( $instance === null ){
-			$instance = new LoggerFactory();
+		$index = md5($type.$name);
+		if( !isset($instances[$index]) ){
+			$instances[$index] = new LoggerFactory($type, $name);
 		}
 
-		return $instance;
+		return $instances[$index];
 	}
 
 	public function getLogger($name=null){

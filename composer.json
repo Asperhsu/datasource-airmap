@@ -8,7 +8,8 @@
         }
     ],
     "require": {
-        "monolog/monolog": "^1.22"
+        "monolog/monolog": "^1.22",
+        "google/cloud": "^0.24.0"
     },
     "autoload": {
     	"files": ["admin-helper.php", "api-common.php"],

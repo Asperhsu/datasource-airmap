@@ -45,7 +45,9 @@ class Thingspeak extends Base {
 			$lastUpdate[$feed['uniqueKey']] = $feed['Data']['Create_at'];
 		}
 
-		$this->logger->info('processFeeds', $recordCountLog);
+		$msg = 'processFeeds';
+		$this->logger->info($msg, $recordCountLog);
+		$this->querylogger->getLogger($msg)->info($msg, $recordCountLog);
 
 		$this->updateConfigUpdateTimestamp($lastUpdate);
 

@@ -7,6 +7,7 @@ use Asper\DateHelper;
 
 abstract class Base {
 	protected $logger;
+	protected $querylogger;
 	protected $enableLogger = true;
 
 	protected $feedUrl = null;
@@ -17,7 +18,9 @@ abstract class Base {
 	protected $fieldMapping = [];
 
 	public function __construct(){
-		$this->logger = LoggerFactory::create()->getLogger('Datasource::'.$this->group);
+		$logName = 'Datasource::'.$this->group;
+		$this->logger = LoggerFactory::create()->getLogger($logName);
+		$this->querylogger = LoggerFactory::create('datastore', $logName);
 	}
 
 	abstract public function exec();
@@ -80,7 +83,10 @@ abstract class Base {
 		}
 
 		$msg = is_null($filter) ? 'processFeeds' : 'processFeeds with filter';
-		$this->enableLogger && $this->logger->info($msg, $recordCountLog);
+		if($this->enableLogger){
+			$this->logger->info($msg, $recordCountLog);
+			$this->querylogger->getLogger($msg)->info($msg, $recordCountLog);
+		}
 
 		return $data;
 	}
