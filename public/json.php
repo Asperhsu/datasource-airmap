@@ -19,6 +19,8 @@ use Asper\JsonHandler\Datasource;
 use Asper\JsonHandler\IndependentConfig;
 use Asper\JsonHandler\ProbecubeConfig;
 
+use Asper\JsonHandler\DatasourceLog;
+
 
 //for CORS
 if( $_SERVER['REQUEST_METHOD'] == 'OPTIONS' ){
@@ -40,6 +42,8 @@ $handlers = [
 
 	IndependentConfig::class,
 	ProbecubeConfig::class,
+
+	DatasourceLog::class,
 ];
 $serviceProvider = new ServiceProvider();
 $serviceProvider->register($handlers);

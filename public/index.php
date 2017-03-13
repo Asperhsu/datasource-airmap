@@ -55,6 +55,7 @@ $datasources = [
 						<li><a href="#scrollspy-datasource">Datasource</a></li>
 						<li><a href="#scrollspy-query-history">History</a></li>
 						<li><a href="#scrollspy-query-lastest">Lastest</a></li>
+						<li><a href="#scrollspy-query-fetch-log">Fetch Log</a></li>
 						<li><a href="#scrollspy-admin">Admin</a></li>
 					</ul>
 				</div>
@@ -250,6 +251,17 @@ $datasources = [
 								</tr>
 							</tbody>
 						</table>
+					</div>
+				</div>
+
+				<div class="panel panel-default">
+					<div class="panel-heading" id="scrollspy-query-fetch-log">Last 12 Hour Fetch Log</div>
+					
+					<div class="panel-body">
+						<a href='/log/lass' target="fetchLog" class="btn btn-primary">LASS</a>
+						<a href='/log/lass-4u' target="fetchLog" class="btn btn-primary">LASS 4U</a>
+						<a href='/log/lass-maps' target="fetchLog" class="btn btn-primary">LASS MAPS</a>
+						<a href='/log/edimax-airbox' target="fetchLog" class="btn btn-primary">Edimax Airbox</a>
 					</div>
 				</div>
 

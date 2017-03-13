@@ -23,7 +23,7 @@ handlers:
   upload: assets/js/(.*\.js)
   mime_type: application/javascript
 
-- url: /log
+- url: /log/(.*)
   script: /public/log.php
   secure: always
 
