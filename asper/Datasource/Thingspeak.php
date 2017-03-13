@@ -50,7 +50,7 @@ class Thingspeak extends Base {
 		$this->querylogger->getLogger($msg)->info($msg, $recordCountLog);
 
 		$this->updateConfigUpdateTimestamp($lastUpdate);
-
+		$this->logDiffUniqueKeys($feeds);
 		$this->save($feeds);
 
 		return $feeds;

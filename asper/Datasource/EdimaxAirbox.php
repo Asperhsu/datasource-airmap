@@ -45,6 +45,7 @@ class EdimaxAirbox extends Base {
 		}
 
 		$data = $this->processFeeds($data['devices']);
+		$this->logDiffUniqueKeys($data);
 		$this->save($data);
 
 		return $data;

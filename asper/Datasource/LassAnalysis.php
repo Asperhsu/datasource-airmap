@@ -5,7 +5,7 @@ use Asper\LoggerFactory;
 use Asper\GAEBucket;
 
 class LassAnalysis {
-	protected $data = [];
+	protected $data = null;
 
 	public function __construct(){
 		$this->logger = LoggerFactory::create()->getLogger('Datasource::'.get_class($this));
@@ -33,12 +33,14 @@ class LassAnalysis {
 	}
 
 	protected function load(){
-		if( is_array($this->data) && count($this->data) ){
+		if( $this->data !== null ){
 			return $this->data;
 		}
 
 		$path = get_class($this) . ".json";
-		$this->data = json_decode(GAEBucket::load($path), true);
+		$data = GAEBucket::load($path);
+		$this->data = $data === false ? [] : json_decode($data, true);
+		
 		return $this->data;
 	}
 

@@ -33,6 +33,7 @@ class AsusAirbox extends Base {
 		}
 
 		$data = $this->processFeeds($data);
+		$this->logDiffUniqueKeys($data);
 		$this->save($data);
 
 		return $data;

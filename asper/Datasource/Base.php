@@ -198,4 +198,44 @@ abstract class Base {
 
 		return $history;
 	}
+
+	protected function logDiffUniqueKeys(Array $newfeeds){
+		$prevFeeds = $this->load();
+		$prevFeeds = array_merge($prevFeeds['valid'], $prevFeeds['expire']);
+		
+		$diff = $this->findFeedsDiffUniqueKeys($prevFeeds, $newfeeds);
+		
+		if($this->enableLogger){
+			$msg = "logDiffUniqueKeys";
+			$this->logger->info($msg, $diff);
+			$this->querylogger->getLogger($msg)->info($msg, $diff);
+		}
+
+		return $diff;
+	}
+
+	protected function getUniqueKeys(Array $feeds){
+		return array_map(function($feed){
+			return $feed['uniqueKey'];
+		}, $feeds);
+	}
+
+	protected function findFeedsDiffUniqueKeys(Array $prevFeeds, Array $currentFeeds){
+		$diff = [ 'add' => [], 'remove' => [] ];
+		$prevUniqueKeys = $this->getUniqueKeys($prevFeeds);
+		$currentUniqueKeys = $this->getUniqueKeys($currentFeeds);
+		
+		foreach($currentUniqueKeys as $index => $key){
+			$prevIndex = array_search($key, $prevUniqueKeys);
+			if($prevIndex === false){
+				$diff['add'][] = $key;
+			}else{
+				array_splice($prevUniqueKeys, $prevIndex, 1);
+			}
+		}
+		$diff['remove'] = $prevUniqueKeys;
+		
+		return $diff;
+	}
+
 }

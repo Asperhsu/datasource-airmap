@@ -31,6 +31,7 @@ class LASS extends Base {
 		}
 
 		$data = $this->processFeeds($data['feeds']);
+		$this->logDiffUniqueKeys($data);
 		$this->save($data);
 
 		return $data;
