@@ -30,11 +30,7 @@ class EdimaxAirbox extends Base {
 	}
 
 	public function exec(){
-		$url = implode("",  [
-			$this->baseUrl,
-			$this->feedUrl,
-			'?token='.$this->token,
-		]);
+		$url = $this->baseUrl.$this->feedUrl.'?token='.$this->token;
 		$response = $this->fetchRemote($url);
 		if($response === null){ return false; }
 		
@@ -70,13 +66,13 @@ class EdimaxAirbox extends Base {
 		return $data;
 	}
 
-	public function queryHistory($id, $startTimestamp, $endTimestamp){
+	public function queryHistory($uniqueKey, $startTimestamp, $endTimestamp){
 		$startTZ 	= DateHelper::convertTimeToTZ($startTimestamp);
 		$endTZ		= DateHelper::convertTimeToTZ($endTimestamp);
 		$startDate  = date('Y-m-d%20H:i:s', strtotime($startTZ));
 		$endDate  	= date('Y-m-d%20H:i:s', strtotime($endTZ));
 		
-		$url 		= sprintf($this->baseUrl.$this->deviceHistoryUrl, $this->token, $id, $startDate, $endDate);
+		$url 		= sprintf($this->baseUrl.$this->deviceHistoryUrl, $this->token, $uniqueKey, $startDate, $endDate);
 
 		$response = $this->fetchRemote($url);
 		if($response === null){ return []; }

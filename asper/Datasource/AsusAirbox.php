@@ -56,10 +56,10 @@ class AsusAirbox extends Base {
 		return $data;
 	}
 
-	public function queryHistory($id, $startTimestamp, $endTimestamp){
+	public function queryHistory($uniqueKey, $startTimestamp, $endTimestamp){
 		$startMs 	= strtotime(DateHelper::convertTimeToTZ($startTimestamp)) * 1000;
 		$endMs		= strtotime(DateHelper::convertTimeToTZ($endTimestamp)) * 1000;
-		$url 		= sprintf($this->baseUrl.$this->deviceHistoryUrl, $id, $startMs, $endMs);
+		$url 		= sprintf($this->baseUrl.$this->deviceHistoryUrl, $uniqueKey, $startMs, $endMs);
 
 		$response = $this->fetchRemote($url);
 		if($response === null){ return []; }

@@ -34,7 +34,7 @@ class Thingspeak extends Base {
 			$feed = $this->queryLastest($site[$this->uniqueKey], true);
 
 			//log
-			$this->isValid($feed) 
+			$this->isCreatAtValid($feed) 
 				? ($recordCountLog['valid']++) 
 				: ($recordCountLog['expire']++);
 			$recordCountLog['total']++;
@@ -46,8 +46,9 @@ class Thingspeak extends Base {
 		}
 
 		$msg = 'processFeeds';
+		$callee = $this->getCallee() ?: $msg;
 		$this->logger->info($msg, $recordCountLog);
-		$this->querylogger->getLogger($msg)->info($msg, $recordCountLog);
+		$this->querylogger->getLogger($msg)->info($callee, $recordCountLog);
 
 		$this->updateConfigUpdateTimestamp($lastUpdate);
 		$this->logDiffUniqueKeys($feeds);
@@ -82,9 +83,9 @@ class Thingspeak extends Base {
 			$data['feeds'][$index][$this->uniqueKey] = (string)$site[$this->uniqueKey];
 		}
 
-		$this->enableLogger = false; //temp disable
+		$this->enableLog(false); //temp disable
 		$feeds = $this->processFeeds($data['feeds']);
-		$this->enableLogger = true;
+		$this->enableLog(true);
 
 		$feed = array_shift($feeds);
 
@@ -118,8 +119,10 @@ class Thingspeak extends Base {
 		}
 
 		//transform to site feed format
+		$this->enableLog(false);
 		$feeds = $this->processFeeds($data['feeds']);
-
+		$this->enableLog(true);
+		
 		return $this->convertFeedsToHistory($feeds);
 	}
 

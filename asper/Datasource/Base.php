@@ -17,103 +17,160 @@ abstract class Base {
 	protected $uniqueKey = null;
 	protected $fieldMapping = [];
 
+	protected $LassRanking;
+	protected $LassDeviceStatus;
+
 	public function __construct(){
 		$logName = 'Datasource::'.$this->group;
 		$this->logger = LoggerFactory::create()->getLogger($logName);
 		$this->querylogger = LoggerFactory::create('datastore', $logName);
 	}
 
+	/**
+	 * method to fetch feed url
+	 * @return Array [description]
+	 */
 	abstract public function exec();
 
+	/**
+	 * tranform row feed to feed format
+	 * @param  array  $row row feed
+	 * @return rray      feed
+	 */
 	abstract protected function transform($row=[]);
 
-	protected function isValid($site){
-		return !(isset($site['Data']['Create_at']) &&
-			   Filter::timeGreaterThan($site['Data']['Create_at']));
+	/**
+	 * return create at time is valid
+	 * @param  array  $feed  feed
+	 * @return boolean       valid status
+	 */
+	protected function isCreatAtValid($feed){
+		return !(isset($feed['Data']['Create_at']) &&
+			   Filter::timeGreaterThan($feed['Data']['Create_at']));
 	}
 
-	protected function processFeeds($feeds, callable $filter=null){
-		$data = [];
+	/**
+	 * enable/disable log
+	 * @param  boolean $flag true for enable
+	 */
+	protected function enableLog($flag){
+		$this->enableLogger == (bool) $flag;
+	}
+
+	protected function getCallee(){
+		$trace = debug_backtrace(); 
+		$callee = isset($trace[2]) ? $trace[2]["class"].'::'.$trace[2]["function"] : null;
+		return $callee;
+	}
+
+	/**
+	 * process row feeds from remote, transform to feeds
+	 * @param  array         $rawFeeds row rawFeeds
+	 * @param  callable|null $filter   filter callback, false to pass feed
+	 * @return array                   feeds
+	 */
+	protected function processFeeds(Array $rawFeeds, callable $filter=null){
+		$feeds = [];
 		$recordCountLog = [
 			'filter'	=> 0,
 			'valid' 	=> 0,
 			'expire' 	=> 0,
 			'total'		=> 0,
-		];		
-		$LassRanking = new LassRanking();
-		$LassDeviceStatus = new LassDeviceStatus();
+		];
 
-		foreach($feeds as $index => $row){
-			$fields = $this->fieldTransform($row);
-			$transformedData = $this->transform($row);
-			if( !$transformedData ){ continue; }
+		foreach($rawFeeds as $index => $rawFeed){
+			$feed = $this->transform($rawFeed);
+			if( !$feed ){ continue; }
 			
-			//find uniquekey in rawData, fill into site
-			if($this->uniqueKey){
-				$indexes = explode('.', $this->uniqueKey);
-				
-				$value = $row;
-				foreach($indexes as $index){
-					if( isset($value[$index]) ){
-						$value = $value[$index];
-					}
-				}
-
-				$transformedData['uniqueKey'] = $value;
-				$transformedData['reliableRanking'] = $LassRanking->getRank($value);
-				$transformedData['supposeStatus'] = $LassDeviceStatus->getStatus($value);
-			}
-
-			$transformedData['RawData'] = $row;
-			$site = array_merge_recursive($transformedData, ['Data' => $fields]);
+			$fields = $this->fieldTransform($rawFeed);
+			$uniqueKeyInfo = $this->appendUniqueKeyInfo($rawFeed);
+			$feed = array_merge_recursive($feed, ['Data' => $fields, 'RawData' => $rawFeed], $uniqueKeyInfo);
 
 			//filter, true for keep
-			if( !is_null($filter) && !$filter($site) ){
+			if( !is_null($filter) && !$filter($feed) ){
 				$recordCountLog['filter']++;
 				continue;
 			}
 
-			$data[] = $site;
+			$feeds[] = $feed;
 
-			//log
-			$this->isValid($site) 
+			//log count
+			$this->isCreatAtValid($feed) 
 				? ($recordCountLog['valid']++) 
 				: ($recordCountLog['expire']++);
 			$recordCountLog['total']++;
 		}
 
-		$msg = is_null($filter) ? 'processFeeds' : 'processFeeds with filter';
 		if($this->enableLogger){
+			$msg = 'processFeeds';
+			$callee = $this->getCallee() ?: $msg;
+
 			$this->logger->info($msg, $recordCountLog);
-			$this->querylogger->getLogger($msg)->info($msg, $recordCountLog);
+			$this->querylogger->getLogger($msg)->info($callee, $recordCountLog);
 		}
 
-		return $data;
+		return $feeds;
 	}
 
-	protected function fieldTransform($row=[], $fieldMapping=null){
-		$data = [];
-		if( is_null($fieldMapping) ){
-			$fieldMapping = $this->fieldMapping;
+	/**
+	 * append info to feed by uniquekey
+	 * @param  Array  $rawFeed row feed
+	 * @return array           addition infomation
+	 */
+	protected function appendUniqueKeyInfo(Array $rawFeed){
+		if( $this->uniqueKey === null ){ return []; }
+
+		$feed = [];
+		$indexes = explode('.', $this->uniqueKey);
+		
+		//find uniquekey in rawData, fill into site
+		$uniquekey = $rawFeed;
+		foreach($indexes as $index){
+			if( isset($uniquekey[$index]) ){
+				$uniquekey = $uniquekey[$index];
+			}
 		}
 
-		foreach($row as $fieldName => $fieldValue){
+		$feed['uniqueKey'] = $uniquekey;
+		$feed['reliableRanking'] = LASSAnalysisFactory::getRankingInstance()->getRank($uniquekey);
+		$feed['supposeStatus'] = LASSAnalysisFactory::getDeviceStatusInstance()->getStatus($uniquekey);
+
+		return $feed;
+	}
+
+	/**
+	 * transform measure data from raw feed defined in fieldMapping
+	 * @param  array  $rawFeed       raw feed
+	 * @param  array  $fieldMapping  fields reject into feed.data
+	 * @return array                 feed.data
+	 */
+	protected function fieldTransform($rawFeed=[], Array $fieldMapping=null){
+		$feedData = [];
+		$fieldMapping = $fieldMapping ?: $this->fieldMapping;
+
+		foreach($rawFeed as $fieldName => $fieldValue){
 			if( !isset($fieldMapping[$fieldName]) ){ continue; }
 
 			$newFieldName = $fieldMapping[$fieldName];
-			$data[$newFieldName] = $fieldValue;
+			$feedData[$newFieldName] = $fieldValue;
 		}
 
-		return $data;
+		return $feedData;
 	}
 
-	protected function fetchRemote($url=null){
+	/**
+	 * fetch remote using file_get_contents(GAE)
+	 * @param  [type] $url    [description]
+	 * @param  string $method [description]
+	 * @return [type]         [description]
+	 */
+	protected function fetchRemote($url=null, $method="GET"){
 		$url = $url ?: $this->feedUrl;
 
 		if( count($this->header) ){
 			$opts = [
 				'http'=> [
-					'method' => "GET",
+					'method' => $method,
 					'header' => implode("\r\n", $this->header)
 				]
 			];
@@ -127,20 +184,31 @@ abstract class Base {
 		if($statusCode == 200){
 			return $contents;
 		}else{
-			$this->logger->warn("fetchRemote error.", compact('statusCode', 'url', 'http_response_header'));
+			$this->enableLogger && $this->logger->warn("fetchRemote error.", compact('statusCode', 'url', 'http_response_header'));
 			return null;
 		}
 	}
 
-	protected function save($data=[]){
+	/**
+	 * save feeds to file
+	 * @param  array  $feeds 
+	 * @return boolean       
+	 */
+	protected function save($feeds=[]){
 		$path = $this->group . '.json';
-		if( !count($data) ){ return false; }
+		if( !count($feeds) ){ return false; }
 
-		$data = json_encode($data);
-		return GAEBucket::save($path, $data);
+		$json = json_encode($feeds);
+		return GAEBucket::save($path, $json);
 	}
 
-	public function load($includeRaw=false, callable $isValidCB=null){
+	/**
+	 * load feeds
+	 * @param  boolean       $includeRaw include raw data
+	 * @param  callable|null $filter     return false to set feed is expire
+	 * @return array                     [$valid, $expire]
+	 */
+	public function load($includeRaw=false, callable $filter=null){
 		$path = $this->group . '.json';
 		$valid = [];
 		$expire = [];
@@ -155,36 +223,59 @@ abstract class Base {
 		foreach($data as $site){
 			if( !$includeRaw && isset($site['RawData']) ){ unset($site['RawData']); }
 
-			$isValid = is_null($isValidCB) 
-						? $this->isValid($site) 
-						: call_user_func($isValidCB, $site);
+			$isValid = is_null($filter) 
+						? $this->isCreatAtValid($site) 
+						: call_user_func($filter, $site);
 			$isValid ? ($valid[] = $site) : ($expire[] = $site);
 		}
 
-		$this->logger->info("load sites count", ['valid' => count($valid), 'expire' => count($expire)] );
+		if($this->enableLogger){
+			$this->logger->info("load sites count", [
+				'valid' => count($valid), 
+				'expire' => count($expire)
+			]);
+		}
 
 		return compact('valid', 'expire');
 	}
 
-	public function queryLastest($id, $includeRaw=false){
+	/**
+	 * query lastest feed by uniqueKey, default will find in exist feeds
+	 * @param  string  $uniqueKey   
+	 * @param  boolean $includeRaw 
+	 * @return array               feed
+	 */
+	public function queryLastest($uniqueKey, $includeRaw=false){
 		$data = $this->load($includeRaw);
 		$feeds = array_merge($data['valid'], $data['expire']);
 
 		foreach($feeds as $site){
-			if($site['uniqueKey'] != $id){ continue; }
+			if($site['uniqueKey'] != $uniqueKey){ continue; }
 			return $site;
 		}
 
 		return [];
 	}
 
-	public function queryHistory($id, $startTimestamp, $endTimestamp){
-		return [];	//optional implement
+	/**
+	 * query history feeds by uniqueKey (optional)
+	 * @param  string $uniqueKey      
+	 * @param  int    $startTimestamp
+	 * @param  int    $endTimestamp  
+	 * @return array                
+	 */
+	public function queryHistory($uniqueKey, $startTimestamp, $endTimestamp){
+		return [];
 	}
 
-	protected function convertFeedsToHistory($feeds){
-
+	/**
+	 * convert feeds to history format
+	 * @param  array $feeds  
+	 * @return array        history
+	 */
+	protected function convertFeedsToHistory(Array $feeds){
 		$history = [];
+
 		foreach($feeds as $index => $feed){
 			foreach($feed['Data'] as $type => $value){
 				if( $type == 'Create_at' ){
@@ -199,27 +290,23 @@ abstract class Base {
 		return $history;
 	}
 
-	protected function logDiffUniqueKeys(Array $newfeeds){
-		$prevFeeds = $this->load();
-		$prevFeeds = array_merge($prevFeeds['valid'], $prevFeeds['expire']);
-		
-		$diff = $this->findFeedsDiffUniqueKeys($prevFeeds, $newfeeds);
-		
-		if($this->enableLogger){
-			$msg = "logDiffUniqueKeys";
-			$this->logger->info($msg, $diff);
-			$this->querylogger->getLogger($msg)->info($msg, $diff);
-		}
-
-		return $diff;
-	}
-
+	/**
+	 * get uniqueKey from feeds
+	 * @param  Array  $feeds 
+	 * @return array        uniqueKeys
+	 */
 	protected function getUniqueKeys(Array $feeds){
 		return array_map(function($feed){
 			return $feed['uniqueKey'];
 		}, $feeds);
 	}
 
+	/**
+	 * find diff uiqueKeys with previous feeds
+	 * @param  Array  $prevFeeds    previous feeds
+	 * @param  Array  $currentFeeds fetched feeds
+	 * @return Array                diff uniqueKeys
+	 */
 	protected function findFeedsDiffUniqueKeys(Array $prevFeeds, Array $currentFeeds){
 		$diff = [ 'add' => [], 'remove' => [] ];
 		$prevUniqueKeys = $this->getUniqueKeys($prevFeeds);
@@ -235,6 +322,26 @@ abstract class Base {
 		}
 		$diff['remove'] = $prevUniqueKeys;
 		
+		return $diff;
+	}
+
+	/**
+	 * find diff uiqueKeys with previous feeds, and save to log
+	 * @param  Array  $newfeeds fetched feeds
+	 * @return array            diff uniqueKeys
+	 */
+	protected function logDiffUniqueKeys(Array $newfeeds){
+		$prevFeeds = $this->load();
+		$prevFeeds = array_merge($prevFeeds['valid'], $prevFeeds['expire']);
+		
+		$diff = $this->findFeedsDiffUniqueKeys($prevFeeds, $newfeeds);
+		
+		if($this->enableLogger){
+			$msg = "logDiffUniqueKeys";
+			$this->logger->info($msg, $diff);
+			$this->querylogger->getLogger($msg)->info($msg, $diff);
+		}
+
 		return $diff;
 	}
 

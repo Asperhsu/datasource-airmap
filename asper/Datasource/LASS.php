@@ -58,39 +58,42 @@ class LASS extends Base {
 		return $data;
 	}
 
-	public function queryLastest($id, $includeRAW=false){
-		$url = sprintf($this->deviceLastestUrl, $id);
+	public function queryLastest($uniqueKey, $includeRAW=false){
+		$url = sprintf($this->deviceLastestUrl, $uniqueKey);
 		$response = $this->fetchRemote($url);
 		if($response === null){ return []; }
 
 		$data = json_decode($response, true);
 		$dataFeeds = array_values($data['feeds'][0]);
-		$site = $this->processFeeds($dataFeeds);
-		
-		if( !count($site) ){ return []; }
 
-		$site = array_shift($site);
+		$this->enableLog(false);
+		$feed = $this->processFeeds($dataFeeds);
+		$this->enableLog(true);
+		
+		if( !count($feed) ){ return []; }
+
+		$feed = array_shift($feed);
 		if(!$includeRAW){
-			unset($site['RawData']);
+			unset($feed['RawData']);
 		}
-		return $site;
+		return $feed;
 	}
 
-	public function queryHistory($id, $startTimestamp, $endTimestamp){
+	public function queryHistory($uniqueKey, $startTimestamp, $endTimestamp){
 		$startTZ 	= DateHelper::convertTimeToTZ($startTimestamp);
 		$endTZ 		= DateHelper::convertTimeToTZ($endTimestamp);
 		$queryDates = DateHelper::calcDateRange($startTZ, $endTZ);
-		$filter 	= function($site) use ($startTZ, $endTZ) {
-			if( !isset($site['Data']['Create_at']) ){ 
+		$filter 	= function($feed) use ($startTZ, $endTZ) {
+			if( !isset($feed['Data']['Create_at']) ){ 
 				return true; 
 			}
 
-			return Filter::inTimeRange($site['Data']['Create_at'], $startTZ, $endTZ);
+			return Filter::inTimeRange($feed['Data']['Create_at'], $startTZ, $endTZ);
 		};
 
 		$feeds = [];
 		foreach($queryDates as $date){
-			$url = sprintf($this->deviceHistoryUrl, $id, $date);
+			$url = sprintf($this->deviceHistoryUrl, $uniqueKey, $date);
 			$response = $this->fetchRemote($url);
 			if($response === null){ continue; }
 
@@ -98,7 +101,11 @@ class LASS extends Base {
 			if( !isset($data['feeds'][0]) ){ continue; }
 
 			$dataFeeds = array_shift(array_values($data['feeds'][0]));
+			
+			$this->enableLog(false);
 			$data = $this->processFeeds($dataFeeds, $filter);
+			$this->enableLog(true);
+			
 			$feeds = array_merge($feeds, $data);
 		}
 
