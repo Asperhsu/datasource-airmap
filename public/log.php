@@ -114,7 +114,8 @@
 				<table class="table table-striped diff-table" id="table">
 					<thead>
 						<tr>
-							<th>UTC</th>
+							<th>Local Time</th>
+							<th>Count</th>
 							<th>Site Added</th>
 							<th>Site Removed</th>
 						</tr>
@@ -140,66 +141,139 @@
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
 		<script src="https://www.gstatic.com/charts/loader.js"></script>
-		<script>google.charts.load('current', {'packages':['corechart']});</script>
-		
 		<script>
+			var TZtoLocal = function(TZ){
+				var dd = new Date(TZ);
+				var leftPadding = function(no){
+					return no >= 10 ? no : '0'+no;
+				};
+
+				return [
+					dd.getFullYear(), 
+					leftPadding(dd.getMonth()+1), 
+					leftPadding(dd.getDate()),
+				].join('/') + ' ' + [
+					leftPadding(dd.getHours()),
+					leftPadding(dd.getMinutes()),
+					leftPadding(dd.getSeconds()),
+				].join(':');
+			};
+
+			var findTotalCount = function(count, TZ){
+				if(!count || !TZ){ return null; }
+
+				for(var i in count){
+					if( count[i].utc.slice(0, -4) == TZ.slice(0, -4) ){
+						return count[i].total;
+					}
+				}
+				return null;
+			};
+
+			var getDataTable = function(data){
+				if(!data){ return null; }
+
+				var chartRows = [];
+				data.map(function(record){
+					chartRows.push([
+						new Date(record.utc),
+						record.total,
+					]);
+				});
+
+				var dataTable = new google.visualization.DataTable();
+					dataTable.addColumn('datetime', 'Time');
+					dataTable.addColumn('number', 'Total');
+					dataTable.addRows(chartRows);
+
+				return dataTable;
+			};
+
+			var getList = function(data){
+				if(!data){ return null; }
+
+				var tbody = [];
+				data.diff.map(function(row){
+					tbody.push([
+						'<tr>',
+							'<td>' + TZtoLocal(row.utc) + '</td>',
+							'<td>' + findTotalCount(data.count, row.utc) + '</td>',
+							'<td>' + row.add + '</td>',
+							'<td>' + row.remove + '</td>',
+						'</tr>',
+					].join(''));
+				});
+
+				return tbody.join('');
+			}
+
+			
+
+			var initChart = function(chartContainer, dataTable){
+				var chartOptions = {
+					chartArea: { top:20, left:45, width: '90%', height: '80%' },
+					legend: { position: 'none'},
+					fontSize: 14,
+					fontName: "Verdana",
+					lineWidth: 2,
+					pointSize: 4,
+					hAxis: { 
+						gridlines: { color: "#fff" },
+					},
+					vAxis: { gridlines: { color: "#eee" } },
+					explorer: {
+						keepInBounds: true,
+						maxZoomOut: 1,
+					},
+				};
+
+				var container = document.getElementById(chartContainer);
+				var chart = new google.visualization.LineChart(container);
+				chart.draw(dataTable, chartOptions);
+
+				return chart;
+			}
+
 			var loadChart = function(){
 				$loading = $(".loading").show();
 
 				var chartContainer = "chart";
-				var tableContainer = "table";
+				var $tableContainer = $("#table");
 				var resource = '/<?=$group;?>-log.json';
 
 				$.getJSON(resource).then(function(data){
-					var chartRows = [];
-					var tbody = [];
+					//list
+					var tbody = getList(data);
+					if(tbody !== null){
+						$tableContainer.find("tbody").html(tbody);
+					}
 
-					data.diff.map(function(row){
-						tbody.push([
-							'<tr>',
-								'<td>' + row.utc + '</td>',
-								'<td>' + row.add + '</td>',
-								'<td>' + row.remove + '</td>',
-							'</tr>',
-						].join(''));
-					});
-					$("#" + tableContainer + " tbody").html(tbody.join(''));
-
-					data.count.map(function(record){
-						chartRows.push([
-							new Date(record.utc),
-							record.total,
-						]);
-					});
-
-					var dataTable = new google.visualization.DataTable();
-					dataTable.addColumn('datetime', 'Time');
-					dataTable.addColumn('number', 'Total');
-					dataTable.addRows(chartRows);
+					//datatable
+					var dataTable = getDataTable(data.count);
+					var chart = initChart(chartContainer, dataTable);
 					
-					var chart = new google.visualization.LineChart(document.getElementById(chartContainer));
-					chart.draw(dataTable, {
-						chartArea: { top:20, left:45, width: '90%', height: '80%' },
-						legend: { position: 'none'},
-						fontSize: 14,
-						fontName: "Verdana",
-						lineWidth: 2,
-						pointSize: 4,
-						hAxis: { 
-							gridlines: { color: "#fff" },
-						},
-						vAxis: { gridlines: { color: "#eee" } },
-						explorer: {
-							keepInBounds: true,
-							maxZoomOut: 1,
-						},
+
+					google.visualization.events.addListener(chart, 'select', function(){
+						var selection = chart.getSelection();
+						var item = selection.shift();
+
+						if(item){ //seleted
+							var TZ = dataTable.getValue(item.row, 0);
+							var timeStr = TZtoLocal(TZ);
+
+							$tableContainer.find("tbody tr").hide()
+								.filter(":contains('" + timeStr.slice(0, -3) + "')").show();
+						}else{	//unseleted
+							$tableContainer.find("tbody tr").show();
+						}
 					});
 
 					$loading.hide();
 				});
 			};
 
-			loadChart();
+			google.charts.load('current', {'packages':['corechart']});
+			google.charts.setOnLoadCallback(loadChart);
 		</script>
 	</body>
 </html>

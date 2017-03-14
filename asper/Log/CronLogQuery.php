@@ -36,7 +36,7 @@ class CronLogQuery {
 		
 		foreach ($result as $key => $entity) {
 			$date = DateHelper::convertTimeToTZ($entity['datetime']['date']);
-			if($entity['channel'] == "processFeeds"){
+			if( $entity['channel'] == "processFeeds" && strpos($entity['message'], 'exec') !== false ){
 				$data['count'][] = [
 					'utc' => $date,
 					'total' => $entity['context']['total'],
