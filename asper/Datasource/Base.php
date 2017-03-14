@@ -54,7 +54,7 @@ abstract class Base {
 	 * @param  boolean $flag true for enable
 	 */
 	protected function enableLog($flag){
-		$this->enableLogger == (bool) $flag;
+		$this->enableLogger = (bool) $flag;
 	}
 
 	protected function getCallee(){
@@ -89,6 +89,7 @@ abstract class Base {
 			//filter, true for keep
 			if( !is_null($filter) && !$filter($feed) ){
 				$recordCountLog['filter']++;
+				$recordCountLog['total']++;
 				continue;
 			}
 
