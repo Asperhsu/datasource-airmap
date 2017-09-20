@@ -107,7 +107,7 @@ abstract class Base {
 			$callee = $this->getCallee() ?: $msg;
 
 			$this->logger->info($msg, $recordCountLog);
-			$this->querylogger->getLogger($msg)->info($callee, $recordCountLog);
+			// $this->querylogger->getLogger($msg)->info($callee, $recordCountLog);
 		}
 
 		return $feeds;
@@ -340,7 +340,7 @@ abstract class Base {
 		if($this->enableLogger){
 			$msg = "logDiffUniqueKeys";
 			$this->logger->info($msg, $diff);
-			$this->querylogger->getLogger($msg)->info($msg, $diff);
+			// $this->querylogger->getLogger($msg)->info($msg, $diff);
 		}
 
 		return $diff;

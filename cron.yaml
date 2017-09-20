@@ -1,7 +1,7 @@
 cron:
-- description: airmap
-  url: /cron?job=airmap
-  schedule: every 5 minutes from 00:02 to 23:59
+- description: data analysis
+  url: /cron?job=data-analysis
+  schedule: every 5 minutes from 00:00 to 23:59
   timezone: Asia/Taipei
 
 - description: g0v
@@ -9,7 +9,17 @@ cron:
   schedule: every 5 minutes from 00:01 to 23:59
   timezone: Asia/Taipei
 
-- description: data analysis
-  url: /cron?job=data-analysis
-  schedule: every 5 minutes from 00:00 to 23:59
+- description: lass
+  url: /cron?job=lass
+  schedule: every 5 minutes from 00:02 to 23:59
+  timezone: Asia/Taipei
+
+- description: edimax-airbox
+  url: /cron?job=edimax-airbox
+  schedule: every 5 minutes from 00:03 to 23:59
+  timezone: Asia/Taipei
+
+- description: asus-airbox
+  url: /cron?job=asus-airbox
+  schedule: every 5 minutes from 00:04 to 23:59
   timezone: Asia/Taipei
